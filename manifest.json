@@ -1,7 +1,7 @@
 {
   "name": "Jay Tech",
   "short_name": "JayTech",
-  "start_url": "index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#021111",
   "theme_color": "#20b2aa",
