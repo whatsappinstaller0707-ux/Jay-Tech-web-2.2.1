@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jay Tech | Imagination Meets Reality</title>
+    <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -48,16 +49,18 @@
             position: sticky; top: 0; z-index: 1000;
         }
 
-        .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; color: var(--primary); letter-spacing: 1px; }
+        .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; color: var(--primary); letter-spacing: 1px; flex-shrink: 0; }
         .logo-sq { width: 24px; height: 24px; background: var(--primary); border-radius: 4px; }
         
-        .search-container { flex-grow: 1; max-width: 400px; margin: 0 40px; }
+        .search-container { flex-grow: 1; max-width: 400px; margin: 0 40px; position: relative; }
         .search-bar { 
             width: 100%; padding: 10px 20px; border-radius: 50px; 
             background: var(--bg-surface); border: 1px solid var(--border); 
-            color: var(--text-high); outline: none;
+            color: var(--text-high); outline: none; transition: var(--transition);
         }
+        .search-bar:focus { border-color: var(--primary); box-shadow: 0 0 10px var(--primary-glow); }
 
+        .controls { display: flex; gap: 20px; align-items: center; }
         .theme-switch {
             width: 46px; height: 24px;
             background: var(--bg-surface);
@@ -71,7 +74,7 @@
         body.light-mode .switch-circle { transform: translateX(22px); }
 
         main { padding: 3rem 8% 120px; }
-        .hero h1 { font-size: 2.5rem; margin-bottom: 2rem; font-weight: 800; }
+        .hero h1 { font-size: 2.5rem; margin-bottom: 2rem; font-weight: 800; line-height: 1.2; }
         .teal-gradient { background: linear-gradient(90deg, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         body.light-mode .teal-gradient { background: linear-gradient(90deg, #002d2d, var(--primary)); }
 
@@ -84,54 +87,66 @@
             border-radius: 24px;
             transition: var(--transition);
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
-        .card:hover { transform: translateY(-8px); border-color: var(--primary); }
-        .card svg { width: 32px; height: 32px; stroke: var(--primary); fill: none; stroke-width: 2; margin-bottom: 20px; }
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+        .card.hidden { display: none; }
 
-        .social-footer { padding: 60px 8% 180px; text-align: center; border-top: 1px solid var(--border); }
-        .social-links { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
-        .social-btn {
-            width: 45px; height: 45px; border-radius: 50%;
-            background: var(--bg-surface); border: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: center;
-            transition: var(--transition); color: var(--primary); text-decoration: none;
-        }
-        .social-btn:hover { background: var(--primary); color: var(--bg-base); }
-        .social-btn svg { width: 22px; height: 22px; fill: currentColor; }
+        .card svg { width: 32px; height: 32px; stroke: var(--primary); fill: none; stroke-width: 2; margin-bottom: 20px; }
+        .card h3 { font-size: 1.1rem; margin-bottom: 10px; color: var(--text-high); }
+        .card p { font-size: 0.85rem; color: var(--text-low); line-height: 1.6; }
 
         .dock {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            background: var(--bg-surface); padding: 12px 40px;
-            border-radius: 100px; border: 1px solid var(--border);
-            display: flex; gap: 40px; z-index: 2000;
+            background: var(--bg-surface);
+            padding: 12px 40px;
+            border-radius: 100px;
+            border: 1px solid var(--border);
+            display: flex; gap: 40px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            z-index: 2000;
         }
-        .dock-item { color: var(--text-low); text-align: center; font-size: 0.75rem; cursor: pointer; }
+        .dock-item { color: var(--text-low); text-align: center; font-size: 0.75rem; cursor: pointer; transition: 0.3s; }
         .dock-item.active { color: var(--primary); font-weight: 600; }
         .dock-item svg { width: 22px; height: 22px; display: block; margin: 0 auto 4px; stroke: currentColor; fill: none; stroke-width: 2; }
 
         .overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85);
-            display: none; place-items: center; z-index: 3000; 
-            backdrop-filter: blur(12px); padding: 20px;
+            display: none; place-items: center; z-index: 3000; backdrop-filter: blur(12px);
+            padding: 20px;
         }
         .overlay.active { display: grid; }
         .modal { 
-            background: var(--bg-surface); padding: 40px; 
-            border-radius: 28px; width: 100%; max-width: 500px; 
-            border: 1px solid var(--primary); max-height: 80vh; overflow-y: auto;
+            background: var(--bg-surface); 
+            padding: 40px; 
+            border-radius: 28px; 
+            width: 100%; 
+            max-width: 500px; 
+            border: 1px solid var(--primary);
+            max-height: 85vh;
+            overflow-y: auto;
         }
+        .modal h2 { margin-bottom: 20px; color: var(--primary); }
         
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 25px; }
-        .btn { padding: 15px; border-radius: 12px; border: none; background: var(--primary); font-weight: 800; color: var(--bg-base); cursor: pointer; text-decoration: none; text-align: center; display: block; }
-        .btn-alt { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
-
-        .list-item { padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+        .list-item { padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; font-size: 0.95rem; }
         .dot { width: 6px; height: 6px; background: var(--primary); border-radius: 50%; }
 
-        .contact-option { display: flex; align-items: center; gap: 15px; padding: 15px; background: var(--glass); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; text-decoration: none; color: var(--text-high); transition: var(--transition); }
-        .contact-option:hover { border-color: var(--primary); background: var(--primary-glow); }
-        .contact-option svg { width: 20px; height: 20px; stroke: var(--primary); fill: none; stroke-width: 2; }
+        .btn { width: 100%; padding: 15px; margin-top: 15px; border-radius: 12px; border: none; background: var(--primary); font-weight: 800; color: var(--bg-base); cursor: pointer; transition: var(--transition); text-decoration: none; display: block; text-align: center; }
+        .btn:hover { opacity: 0.9; transform: scale(0.98); }
+
+        .ledger-box { background: var(--glass); padding: 25px; border-radius: 20px; text-align: center; border: 1px solid var(--border); margin: 20px 0; }
+        input[type="number"], select { width: 100%; padding: 15px; margin-top: 15px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-base); color: var(--text-high); }
+
+        @media (max-width: 768px) {
+            header { flex-direction: column; gap: 15px; padding: 1rem 5%; }
+            .search-container { margin: 0; width: 100%; }
+            .dock { width: 90%; gap: 20px; padding: 12px 20px; }
+        }
     </style>
 </head>
 <body class="dark-mode">
@@ -139,10 +154,12 @@
     <header>
         <div class="brand"><div class="logo-sq"></div> JAY TECH</div>
         <div class="search-container">
-            <input type="text" class="search-bar" id="serviceSearch" placeholder="Search services..." onkeyup="filterServices()">
+            <input type="text" class="search-bar" id="serviceSearch" placeholder="Search for services..." onkeyup="filterServices()">
         </div>
-        <div class="theme-switch" onclick="toggleTheme()">
-            <div class="switch-circle"></div>
+        <div class="controls">
+            <div class="theme-switch" onclick="toggleTheme()">
+                <div class="switch-circle"></div>
+            </div>
         </div>
     </header>
 
@@ -153,24 +170,18 @@
         <div class="grid" id="contentGrid"></div>
     </main>
 
-    <footer class="social-footer">
-        <h3>Connect with Jay Tech</h3>
-        <div class="social-links">
-            <a href="https://wa.me/265881199024" class="social-btn" title="WhatsApp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.433 5.625 1.433h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg></a>
-            <a href="https://www.instagram.com/james.daudi.9231?igsh=MXFvMWF1cTZtOGh0cA==" class="social-btn" title="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.668-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
-            <a href="https://www.facebook.com/share/14WmHmXGqT2/" class="social-btn" title="Facebook"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
-        </div>
-    </footer>
-
     <nav class="dock">
-        <div class="dock-item active" onclick="renderView('home', this)">
-            <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home
+        <div class="dock-item active" id="navHome" onclick="renderView('home', this)">
+            <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Home
         </div>
-        <div class="dock-item" onclick="renderView('services', this)">
-            <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>Resources
+        <div class="dock-item" id="navServices" onclick="renderView('services', this)">
+            <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            Resources
         </div>
-        <div class="dock-item" onclick="toggleModal('contactModal')">
-            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Contact
+        <div class="dock-item" onclick="toggleModal('financeModal')">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Ledger
         </div>
     </nav>
 
@@ -178,110 +189,140 @@
         <div class="modal">
             <h2 id="modalTitle">Service Details</h2>
             <div id="modalList"></div>
-            <div class="btn-group">
-                <a href="https://wa.me/265881199024" id="applyLink" class="btn" target="_blank">Get Service</a>
-                <button class="btn btn-alt" onclick="toggleModal('listModal')">Close</button>
-            </div>
+            <a href="#" id="modalActionBtn" class="btn" target="_blank">Access Service</a>
         </div>
     </div>
 
-    <div class="overlay" id="contactModal" onclick="if(event.target===this) toggleModal('contactModal')">
+    <div class="overlay" id="financeModal" onclick="if(event.target===this) toggleModal('financeModal')">
         <div class="modal">
-            <h2>Contact Us</h2>
-            <p style="margin-bottom: 20px; color: var(--text-low);">Get in touch with the Jay Tech team directly.</p>
-            <a href="https://wa.me/265881199024" class="contact-option" target="_blank">
-                <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-10.6 8.38 8.38 0 0 1 3.8.9L21 3.5Z"/></svg>
-                WhatsApp Support
-            </a>
-            <a href="https://www.facebook.com/share/14WmHmXGqT2/" class="contact-option" target="_blank">
-                <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-                Facebook Page
-            </a>
-            <button class="btn" style="margin-top: 15px; width: 100%;" onclick="toggleModal('contactModal')">Back to Site</button>
+            <h2>Financial Ledger</h2>
+            <div class="ledger-box">
+                <small style="text-transform: uppercase; opacity: 0.6;">Current Balance</small>
+                <h2 id="balanceText" style="margin-top: 10px;">$0.00</h2>
+            </div>
+            <input type="number" id="amt" placeholder="Enter Amount">
+            <select id="type">
+                <option value="in">Income (+)</option>
+                <option value="out">Expense (-)</option>
+            </select>
+            <button class="btn" onclick="processFinance()">Sync Ledger</button>
         </div>
     </div>
 
     <script>
-        const SERVICE_URLS = {
+        const AppState = { view: 'home', balance: Number(localStorage.getItem('jt_balance')) || 0 };
+
+        const ICONS = {
+            web: `<svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg>`,
+            graphics: `<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z"/></svg>`,
+            phone: `<svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>`,
+            consulting: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+            recovery: `<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+            doc: `<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
+            sports: `<svg viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6m12 5h1.5a2.5 2.5 0 0 0 0-5H18M12 22v-4m0 0a8 8 0 1 0 0-16 8 8 0 0 0 0 16z"/><path d="M12 6c-3.5 0-4 4-4 4h8s-.5-4-4-4z"/></svg>`,
+            movies: `<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="17" y1="7" x2="22" y2="7"/></svg>`,
+            whatsapp: `<svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-10.6 8.38 8.38 0 0 1 3.8.9L21 3.5Z"/></svg>`
+        };
+
+        const SERVICE_LINKS = {
+            'Sports Hub': 'https://www.plus.fifa.com/en/',
+            'Cinema Hub': 'https://moviebox.ph/',
+            'WhatsApp Help': 'https://www.facebook.com/share/14WmHmXGqT2/',
             'Graphic Design': 'https://wa.me/265881199024?text=DesignOrder',
             'Professional Documentation': 'https://wa.me/265881199024',
             'Account Recovery': 'https://wa.me/265881199024?text=RecoveryHelp',
             'Web Engineering': 'https://wa.me/265881199024?text=WebProject',
             'Phone Flashing': 'https://wa.me/265881199024?text=PhoneFlashing',
-            // Updated resource links
-            'Sports Hub': 'https://www.plus.fifa.com/en/',
-            'Cinema Hub': 'https://moviebox.ph/',
-            'WhatsApp Help': 'https://www.facebook.com/share/14WmHmXGqT2/'
+            'IT Consulting': 'https://wa.me/265881199024'
         };
 
         const LISTS = {
-            'Graphic Design': ['Logo Design & Branding', 'UI/UX Design', 'Social Media Graphics', 'Marketing Banners', 'Business Cards', 'Flyers & Posters'],
-            'Professional Documentation': ['Professional Resumes (CVs)', 'Cover Letters', 'Company Profiles', 'Business Proposals', 'Technical Manuals'],
+            'Graphic Design': ['Logo Design & Branding', 'UI/UX Design', 'Custom SVG Iconography', 'Social Media Graphics', 'Marketing Banners & Ads', 'Infographics & Data Visualization', 'Business Cards & Letterheads', 'Brochures & Flyers', 'Presentation Templates', 'Product Mockups', 'Vector Illustrations', 'Brand Style Guides', 'Poster Design', 'Invitations'],
+            'Professional Documentation': ['Professional Resumes (CVs)', 'Cover Letters', 'Professional Portfolios', 'Company Profiles', 'Business Proposals', 'Project Whitepapers', 'Technical Manuals', 'Brand Style Guides', 'Invoices & Letterheads', 'Presentation Decks'],
             'Account Recovery': ['Facebook Restoration', 'Instagram Recovery', 'WhatsApp Support', 'Google / Gmail Access', 'Apple ID Support'],
             'Sports Hub': ['Live Scores', 'FIFA+ Originals', 'Match Highlights', 'Tournament Schedules'],
             'Cinema Hub': ['Latest Movie Releases', 'TV Series Streaming', 'HD Quality Content'],
             'WhatsApp Help': ['Account Ban Appeals', 'Security & Privacy Help', 'Technical Troubleshooting (via Facebook Support)']
         };
 
-        const ICONS = {
-            web: `<svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg>`,
-            graphics: `<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z"/></svg>`,
-            phone: `<svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>`,
-            doc: `<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>`,
-            recovery: `<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
-            sports: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>`,
-            movies: `<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/></svg>`,
-            whatsapp: `<svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-10.6 8.38 8.38 0 0 1 3.8.9L21 3.5Z"/></svg>`
-        };
-
         const DATA = {
             home: [
-                { title: 'Web Engineering', icon: 'web', desc: 'Full-stack systems.' },
-                { title: 'Graphic Design', icon: 'graphics', desc: 'Professional branding & assets.' },
-                { title: 'Phone Flashing', icon: 'phone', desc: 'Firmware & FRP Bypassing.' },
-                { title: 'Professional Documentation', icon: 'doc', desc: 'High-quality resumes & profiles.' },
-                { title: 'Account Recovery', icon: 'recovery', desc: 'Social media restoration.' }
+                { title: 'Web Engineering', icon: ICONS.web, desc: 'Responsive full-stack architecture & optimized systems.' },
+                { title: 'Graphic Design', icon: ICONS.graphics, desc: 'Professional branding & UI assets.' },
+                { title: 'Phone Flashing', icon: ICONS.phone, desc: 'Advanced firmware restructuring & FRP Bypassing.' },
+                { title: 'Professional Documentation', icon: ICONS.doc, desc: 'High-quality resumes, CVs, and business profiles.' },
+                { title: 'IT Consulting', icon: ICONS.consulting, desc: 'Strategic advisory for digital infrastructure & security.' },
+                { title: 'Account Recovery', icon: ICONS.recovery, desc: 'Specialized restoration for social media & cloud accounts.' }
             ],
             services: [
-                { title: 'Sports Hub', icon: 'sports', desc: 'Official FIFA+ Live Sports.' },
-                { title: 'Cinema Hub', icon: 'movies', desc: 'High-definition cinematic media.' },
-                { title: 'WhatsApp Help', icon: 'whatsapp', desc: 'Technical restoration via Facebook.' }
+                { title: 'Sports Hub', icon: ICONS.sports, desc: 'Live global sports media & real-time news data.' },
+                { title: 'Cinema Hub', icon: ICONS.movies, desc: 'High-definition cinematic media & global repositories.' },
+                { title: 'WhatsApp Help', icon: ICONS.whatsapp, desc: 'Technical help desk & account restoration protocols.' }
             ]
         };
 
         function renderView(view, el) {
             const grid = document.getElementById('contentGrid');
+            AppState.view = view;
             document.querySelectorAll('.dock-item').forEach(i => i.classList.remove('active'));
             if(el) el.classList.add('active');
-            grid.innerHTML = DATA[view].map(item => `
-                <div class="card" onclick="showListModal('${item.title}')">
-                    ${ICONS[item.icon]}
-                    <h3>${item.title}</h3>
-                    <p>${item.desc}</p>
-                </div>
-            `).join('');
+            grid.innerHTML = '';
+            DATA[view].forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `${item.icon}<h3>${item.title}</h3><p>${item.desc}</p>`;
+                card.onclick = () => showListModal(item.title);
+                grid.appendChild(card);
+            });
+            document.getElementById('serviceSearch').value = '';
+        }
+
+        function filterServices() {
+            const query = document.getElementById('serviceSearch').value.toLowerCase();
+            document.querySelectorAll('.card').forEach(card => {
+                const content = card.innerText.toLowerCase();
+                card.classList.toggle('hidden', !content.includes(query));
+            });
         }
 
         function showListModal(title) {
+            const modal = document.getElementById('listModal');
             document.getElementById('modalTitle').innerText = title;
-            const items = LISTS[title] || ["Technical help desk and restoration services."];
-            document.getElementById('modalList').innerHTML = items.map(i => `<div class="list-item"><div class="dot"></div>${i}</div>`).join('');
+            const items = LISTS[title] || ["Technical help desk and professional digital services."];
+            document.getElementById('modalList').innerHTML = items.map(item => `<div class="list-item"><div class="dot"></div> ${item}</div>`).join('');
             
-            const linkBtn = document.getElementById('applyLink');
-            linkBtn.innerText = (title === 'Sports Hub' || title === 'Cinema Hub') ? "Open Resource" : "Get Service";
-            linkBtn.href = SERVICE_URLS[title] || "https://wa.me/265881199024";
+            const actionBtn = document.getElementById('modalActionBtn');
+            actionBtn.href = SERVICE_LINKS[title] || "https://wa.me/265881199024";
+            actionBtn.innerText = (title === 'Sports Hub' || title === 'Cinema Hub') ? "Open Resource" : "Get Service";
+            
             toggleModal('listModal');
         }
 
-        function toggleModal(id) { document.getElementById(id).classList.toggle('active'); }
-        function toggleTheme() { document.body.classList.toggle('light-mode'); }
-        function filterServices() {
-            const q = document.getElementById('serviceSearch').value.toLowerCase();
-            document.querySelectorAll('.card').forEach(c => c.style.display = c.innerText.toLowerCase().includes(q) ? 'block' : 'none');
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            localStorage.setItem('jt_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
         }
 
+        function toggleModal(id) { document.getElementById(id).classList.toggle('active'); }
+
+        function processFinance() {
+            const amt = parseFloat(document.getElementById('amt').value);
+            const type = document.getElementById('type').value;
+            if (!amt || amt <= 0) return;
+            AppState.balance += type === 'in' ? amt : -amt;
+            localStorage.setItem('jt_balance', AppState.balance);
+            updateBalanceUI();
+            toggleModal('financeModal');
+            document.getElementById('amt').value = '';
+        }
+
+        function updateBalanceUI() {
+            document.getElementById('balanceText').innerText = `$${AppState.balance.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+        }
+
+        if(localStorage.getItem('jt_theme') === 'light') document.body.classList.add('light-mode');
+        updateBalanceUI();
         renderView('home');
     </script>
 </body>
-
 </html>
