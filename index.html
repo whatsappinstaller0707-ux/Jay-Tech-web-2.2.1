@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     
+    <script src="https://minnit.chat/js/embed.js?c=1758971289" defer></script>
+
     <style>
         :root {
             --bg-base: #021111;
@@ -63,13 +65,9 @@
         }
 
         .theme-switch {
-            width: 46px; height: 24px;
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            border-radius: 50px;
-            cursor: pointer;
-            display: flex; align-items: center;
-            padding: 0 4px;
+            width: 46px; height: 24px; background: var(--bg-surface);
+            border: 1px solid var(--border); border-radius: 50px;
+            cursor: pointer; display: flex; align-items: center; padding: 0 4px;
         }
         .switch-circle { width: 16px; height: 16px; background: var(--primary); border-radius: 50%; transition: var(--transition); }
         body.light-mode .switch-circle { transform: translateX(22px); }
@@ -78,31 +76,22 @@
         .hero h1 { font-size: 2.5rem; margin-top: 10px; font-weight: 800; }
         .teal-gradient { background: linear-gradient(90deg, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
+        /* Lounge Button Fix */
         .lounge-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 24px;
-            background: var(--primary-glow);
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px;
+            background: var(--primary-glow); border: 1px solid var(--primary);
+            color: var(--primary); text-decoration: none; border-radius: 50px;
+            font-weight: 600; margin-bottom: 20px; transition: var(--transition);
+            cursor: pointer;
         }
         .lounge-btn:hover { background: var(--primary); color: var(--bg-base); transform: translateY(-2px); }
 
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
 
         .card {
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            padding: 35px 25px;
-            border-radius: 24px;
-            transition: var(--transition);
-            cursor: pointer;
+            background: var(--bg-surface); border: 1px solid var(--border);
+            padding: 35px 25px; border-radius: 24px;
+            transition: var(--transition); cursor: pointer;
         }
         .card:hover { transform: translateY(-8px); border-color: var(--primary); }
         .card svg { width: 32px; height: 32px; stroke: var(--primary); fill: none; stroke-width: 2; margin-bottom: 20px; }
@@ -117,6 +106,19 @@
         .dock-item { color: var(--text-low); text-align: center; font-size: 0.75rem; cursor: pointer; }
         .dock-item.active { color: var(--primary); font-weight: 600; }
         .dock-item svg { width: 22px; height: 22px; display: block; margin: 0 auto 4px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+        /* Fullscreen Lounge Overlay */
+        #loungeOverlay {
+            position: fixed; inset: 0; background: var(--bg-base);
+            z-index: 3000; display: none; flex-direction: column;
+        }
+        #loungeOverlay.active { display: flex; }
+        .lounge-header {
+            padding: 15px 20px; background: var(--bg-surface);
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        #chatbox { flex: 1; width: 100%; display: flex; justify-content: center; align-items: center; background: #000; }
     </style>
 </head>
 <body class="dark-mode">
@@ -133,14 +135,29 @@
 
     <main>
         <section class="hero">
-            <a href="lounge/" class="lounge-btn">
-                <i class="fas fa-comments"></i>
-                Enter Community Lounge
-            </a>
+            <div class="lounge-btn" onclick="openLounge()">
+                <i class="fas fa-comments"></i> Enter Community Lounge
+            </div>
             <h1>Jay Tech, <br><span class="teal-gradient">where imagination meets reality</span></h1>
         </section>
         <div class="grid" id="contentGrid"></div>
     </main>
+
+    <div id="loungeOverlay">
+        <div class="lounge-header">
+            <div onclick="closeLounge()" style="color: var(--primary); cursor: pointer; font-weight: 800;">
+                <i class="fas fa-arrow-left"></i> EXIT LOUNGE
+            </div>
+            <strong>JAY TECH CHAT</strong>
+            <i class="fas fa-users" style="color: var(--primary);"></i>
+        </div>
+        <div id="chatbox">
+            <span class="minnit-chat-sembed" 
+                  data-chatname="https://organizations.minnit.chat/671000004638481/c/Main?embed" 
+                  data-style="width:100%; height:100%;" 
+                  data-version="1.55">Chat</span>
+        </div>
+    </div>
 
     <nav class="dock">
         <div class="dock-item active" onclick="renderView('home', this)">
@@ -149,7 +166,7 @@
         <div class="dock-item" onclick="renderView('services', this)">
             <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>Resources
         </div>
-        <div class="dock-item" onclick="alert('Contact via WhatsApp: +265881199024')">
+        <div class="dock-item" onclick="window.open('https://wa.me/265881199024')">
             <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Contact
         </div>
     </nav>
@@ -177,7 +194,7 @@
             services: [
                 { title: 'Sports Hub', icon: 'sports', desc: 'Official FIFA+ Live Sports.' },
                 { title: 'Cinema Hub', icon: 'movies', desc: 'High-definition cinematic media.' },
-                { title: 'WhatsApp Help', icon: 'whatsapp', desc: 'Technical restoration via Facebook.' }
+                { title: 'WhatsApp Help', icon: 'whatsapp', desc: 'Technical restoration.' }
             ]
         };
 
@@ -200,17 +217,11 @@
             document.querySelectorAll('.card').forEach(c => c.style.display = c.innerText.toLowerCase().includes(q) ? 'block' : 'none');
         }
 
+        // Lounge Control Functions
+        function openLounge() { document.getElementById('loungeOverlay').classList.add('active'); }
+        function closeLounge() { document.getElementById('loungeOverlay').classList.remove('active'); }
+
         renderView('home');
-    </script>
-    
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js')
-            .then(() => console.log('App is ready to install!'))
-            .catch(err => console.error('PWA registration failed', err));
-        });
-      }
     </script>
 </body>
 </html>
