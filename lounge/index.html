@@ -2,34 +2,83 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Jay Tech | Support Lounge</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; background: #021111; font-family: sans-serif; overflow: hidden; }
-        .app-shell { display: flex; flex-direction: column; height: 100vh; }
-        header { 
-            height: 60px; padding: 0 20px; display: flex; align-items: center; 
-            justify-content: space-between; background: #052424; color: #20b2aa;
-            border-bottom: 1px solid rgba(32, 178, 170, 0.2);
+        :root {
+            --bg-base: #021111;
+            --bg-surface: #052424;
+            --primary: #20b2aa; 
+            --border: rgba(32, 178, 170, 0.2);
         }
-        .back-btn { color: #20b2aa; text-decoration: none; font-weight: bold; font-size: 14px; }
-        #chatContainer { flex: 1; width: 100%; }
-        iframe { border: none; width: 100%; height: 100%; }
+
+        body, html { 
+            margin: 0; padding: 0; height: 100%; width: 100%; 
+            background: var(--bg-base); font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
+            overflow: hidden; color: white;
+        }
+
+        .app-shell { display: flex; flex-direction: column; height: 100vh; }
+
+        header { 
+            height: 65px; padding: 0 20px; display: flex; align-items: center; 
+            justify-content: space-between; background: var(--bg-surface); 
+            color: var(--primary); border-bottom: 1px solid var(--border);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+
+        .back-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .back-link:hover { background: rgba(32, 178, 170, 0.1); }
+
+        #chatContainer { 
+            flex: 1; 
+            width: 100%;
+            background: #000; /* Dark background while chat loads */
+        }
+
+        iframe { 
+            border: none; 
+            width: 100%; 
+            height: 100%; 
+        }
     </style>
 </head>
 <body>
-    <div class="app-shell">
-        <header>
-            <a href="../" class="back-btn"><i class="fas fa-arrow-left"></i> Home</a>
-            <strong>Jay Tech Lounge</strong>
-            <i class="fas fa-users"></i>
-        </header>
-        <div id="chatContainer">
-            <iframe src="https://minnit.chat/YourRoomName?embed&nickname=" 
-                    allow="geolocation; microphone; camera; display-capture">
-            </iframe>
+
+<div class="app-shell">
+    <header>
+        <a href="../" class="back-link">
+            <i class="fas fa-chevron-left"></i> Exit Lounge
+        </a>
+        <div style="text-align: center;">
+            <strong style="display: block; font-size: 16px; letter-spacing: 1px;">JAY TECH</strong>
+            <small style="font-size: 10px; opacity: 0.6; text-transform: uppercase;">Community Chat</small>
         </div>
+        <i class="fas fa-circle" style="color: #44bd32; font-size: 12px;"></i>
+    </header>
+
+    <div id="chatContainer">
+        <iframe 
+            src="<script src="https://minnit.chat/js/embed.js?c=1758971289" defer></script><span style="display: none;" class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/671000004638481/c/Main?embed" data-style="width:90%; height:500px; max-height:90vh;" data-version="1.55">Chat</span><p class="powered-by-minnit"><a href="https://minnit.chat" target="_blank">Free embeddable chatroom powered by Minnit Chat</a></p>?embed&nickname=" 
+            allow="geolocation; microphone; camera; display-capture" 
+            poster="https://minnit.chat/images/poster.png">
+        </iframe>
     </div>
+</div>
+
 </body>
 </html>
